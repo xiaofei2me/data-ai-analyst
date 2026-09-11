@@ -45,6 +45,7 @@ import { useToastStore } from '../stores/toast'
 import { useDrawerStore } from '../stores/drawer'
 import { useI18n } from '../composables/useI18n'
 import { agents, skills } from '../data'
+import DetailView from '../components/DetailView.vue'
 
 const toastStore = useToastStore()
 const drawerStore = useDrawerStore()
@@ -57,7 +58,14 @@ function toast(msg) {
 function openDetail(name) {
   const item = agents.find(a => a.name === name)
   if (item) {
-    drawerStore.openDrawer(item.name, `<div class="det-card"><h4>${item.name}</h4><div class="det-row"><span class="det-lbl">Status</span><span class="det-val"><span class="sbadge ${item.status === 'active' ? 'ok' : 'wn'}">${item.status === 'active' ? 'Active' : 'Inactive'}</span></span></div><div class="det-row"><span class="det-lbl">Description</span><span class="det-val">${item.desc}</span></div><div class="det-row"><span class="det-lbl">Skills</span><span class="det-val">${item.skills.join(', ')}</span></div></div>`)
+    drawerStore.openDrawer(item.name, DetailView, {
+      title: item.name,
+      fields: [
+        { label: 'Status', value: item.status === 'active' ? 'Active' : 'Inactive', badge: true, badgeType: item.status === 'active' ? 'ok' : 'wn' },
+        { label: 'Description', value: item.desc },
+        { label: 'Skills', value: item.skills.join(', ') }
+      ]
+    })
   }
 }
 </script>

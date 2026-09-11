@@ -39,6 +39,7 @@ import { useToastStore } from '../stores/toast'
 import { useDrawerStore } from '../stores/drawer'
 import { useI18n } from '../composables/useI18n'
 import { knowledge } from '../data'
+import DetailView from '../components/DetailView.vue'
 
 const toastStore = useToastStore()
 const drawerStore = useDrawerStore()
@@ -51,7 +52,13 @@ function toast(msg) {
 function openDetail(title) {
   const item = knowledge.find(k => k.title === title)
   if (item) {
-    drawerStore.openDrawer(item.title, `<div class="det-card"><h4>${item.title}</h4><div class="det-row"><span class="det-lbl">Type</span><span class="det-val">${item.type}</span></div><div class="det-row"><span class="det-lbl">Description</span><span class="det-val">${item.desc}</span></div></div>`)
+    drawerStore.openDrawer(item.title, DetailView, {
+      title: item.title,
+      fields: [
+        { label: 'Type', value: item.type },
+        { label: 'Description', value: item.desc }
+      ]
+    })
   }
 }
 </script>

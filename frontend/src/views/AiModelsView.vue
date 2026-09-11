@@ -65,6 +65,7 @@ import { useToastStore } from '../stores/toast'
 import { useDrawerStore } from '../stores/drawer'
 import { useI18n } from '../composables/useI18n'
 import { models } from '../data'
+import DetailView from '../components/DetailView.vue'
 
 const toastStore = useToastStore()
 const drawerStore = useDrawerStore()
@@ -77,7 +78,16 @@ function toast(msg) {
 function openDetail(name) {
   const item = models.find(r => r.name === name)
   if (item) {
-    drawerStore.openDrawer(item.name, `<div class="det-card"><h4>${item.name}</h4><div class="det-row"><span class="det-lbl">Type</span><span class="det-val">${item.type}</span></div><div class="det-row"><span class="det-lbl">Accuracy</span><span class="det-val">${item.accuracy}%</span></div><div class="det-row"><span class="det-lbl">Status</span><span class="det-val">${item.status}</span></div><div class="det-row"><span class="det-lbl">Latency</span><span class="det-val">${item.latency}ms</span></div><div class="det-row"><span class="det-lbl">Last Updated</span><span class="det-val">${item.updated}</span></div></div>`)
+    drawerStore.openDrawer(item.name, DetailView, {
+      title: item.name,
+      fields: [
+        { label: 'Type', value: item.type },
+        { label: 'Accuracy', value: item.accuracy + '%' },
+        { label: 'Status', value: item.status === 'active' ? 'Active' : item.status === 'training' ? 'Training' : 'Inactive', badge: true, badgeType: item.status === 'active' ? 'ok' : item.status === 'training' ? 'wn' : 'err' },
+        { label: 'Latency', value: item.latency + 'ms' },
+        { label: 'Last Updated', value: item.updated }
+      ]
+    })
   }
 }
 </script>

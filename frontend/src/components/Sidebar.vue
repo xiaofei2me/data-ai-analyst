@@ -54,33 +54,20 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useNavStore } from '../stores/nav'
+import { useNavigation } from '../composables/useNavigation'
 import { useSettingsStore } from '../stores/settings'
 import { useAuthStore } from '../stores/auth'
 import { useI18n } from '../composables/useI18n'
 import { navBiz, navTech } from '../data'
 
 const router = useRouter()
-const navStore = useNavStore()
+const { currentPage, workspace, navigateTo, switchWorkspace } = useNavigation()
 const settingsStore = useSettingsStore()
 const authStore = useAuthStore()
 const { m } = useI18n()
 
-const currentPage = computed(() => navStore.currentPage)
-const workspace = computed(() => navStore.workspace)
 const settings = computed(() => settingsStore.settings)
-
 const navItems = computed(() => workspace.value === 'biz' ? navBiz : navTech)
-
-function switchWorkspace(ws) {
-  navStore.setWorkspace(ws)
-  settingsStore.setSetting('appearance.workspace', ws)
-}
-
-function navigateTo(pageId) {
-  navStore.setPage(pageId)
-  router.push({ name: pageId })
-}
 
 function handleLogout() {
   authStore.logout()

@@ -45,6 +45,7 @@ import { useToastStore } from '../stores/toast'
 import { useDrawerStore } from '../stores/drawer'
 import { useI18n } from '../composables/useI18n'
 import { dataSources, tables } from '../data'
+import DetailView from '../components/DetailView.vue'
 
 const toastStore = useToastStore()
 const drawerStore = useDrawerStore()
@@ -61,7 +62,13 @@ function showTab(tab) {
 function openDetail(name) {
   const item = dataSources.find(r => r.name === name)
   if (item) {
-    drawerStore.openDrawer(item.name, `<div class="det-card"><h4>${item.name}</h4><div class="det-row"><span class="det-lbl">Type</span><span class="det-val">${item.type}</span></div><div class="det-row"><span class="det-lbl">Tables</span><span class="det-val">${item.tables}</span></div></div>`)
+    drawerStore.openDrawer(item.name, DetailView, {
+      title: item.name,
+      fields: [
+        { label: 'Type', value: item.type },
+        { label: 'Tables', value: item.tables }
+      ]
+    })
   }
 }
 </script>

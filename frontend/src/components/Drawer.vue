@@ -7,7 +7,9 @@
         <i class="fas fa-times"></i>
       </button>
     </div>
-    <div class="drawer-bd" v-html="content"></div>
+    <div class="drawer-bd">
+      <component v-if="component" :is="component" v-bind="props" />
+    </div>
   </div>
 </template>
 
@@ -19,7 +21,8 @@ const drawerStore = useDrawerStore()
 
 const isOpen = computed(() => drawerStore.isOpen)
 const title = computed(() => drawerStore.title)
-const content = computed(() => drawerStore.content)
+const component = computed(() => drawerStore.component)
+const props = computed(() => drawerStore.props)
 
 function closeDrawer() {
   drawerStore.closeDrawer()

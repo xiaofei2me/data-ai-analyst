@@ -43,6 +43,7 @@
 import { useToastStore } from '../stores/toast'
 import { useDrawerStore } from '../stores/drawer'
 import { useI18n } from '../composables/useI18n'
+import DetailView from '../components/DetailView.vue'
 
 const toastStore = useToastStore()
 const drawerStore = useDrawerStore()
@@ -64,7 +65,14 @@ function toast(msg) {
 function openDetail(name) {
   const item = roles.find(r => r.name === name)
   if (item) {
-    drawerStore.openDrawer(item.name + ' Role', `<div class="det-card"><h4>${item.name} Role</h4><div class="det-row"><span class="det-lbl">Description</span><span class="det-val">${item.desc}</span></div><div class="det-row"><span class="det-lbl">Users</span><span class="det-val">${item.users}</span></div><div class="det-row"><span class="det-lbl">Permissions</span><span class="det-val">${item.perms.join(', ')}</span></div></div>`)
+    drawerStore.openDrawer(item.name + ' Role', DetailView, {
+      title: item.name + ' Role',
+      fields: [
+        { label: 'Description', value: item.desc },
+        { label: 'Users', value: item.users },
+        { label: 'Permissions', value: item.perms.join(', ') }
+      ]
+    })
   }
 }
 </script>

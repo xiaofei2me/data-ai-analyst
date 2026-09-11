@@ -168,17 +168,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useNavStore } from '../stores/nav'
+import { ref } from 'vue'
+import { useNavigation } from '../composables/useNavigation'
 import { useToastStore } from '../stores/toast'
 import { useDrawerStore } from '../stores/drawer'
 import { useI18n } from '../composables/useI18n'
 import { brands, brandR, regions, regR, channels, chnR, months } from '../data'
-import * as echarts from 'echarts'
+import DetailView from '../components/DetailView.vue'
+import { useCharts } from '../composables/useCharts'
 
-const router = useRouter()
-const navStore = useNavStore()
+const { navigateTo } = useNavigation()
 const toastStore = useToastStore()
 const drawerStore = useDrawerStore()
 const { m } = useI18n()
@@ -188,10 +187,38 @@ const regionChart = ref(null)
 const trendChart = ref(null)
 const channelChart = ref(null)
 
-let brandChartInstance = null
-let regionChartInstance = null
-let trendChartInstance = null
-let channelChartInstance = null
+useCharts({ brandChart, regionChart, trendChart, channelChart }, {
+  brandChart: {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    xAxis: { type: 'category', data: brands, axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', axisLabel: { fontSize: 10, formatter: '¥{value}M' } },
+    series: [{ type: 'bar', data: [{ value: 950, itemStyle: { color: '#4f6ef7' } }, { value: 850, itemStyle: { color: '#10b981' } }, { value: 600, itemStyle: { color: '#f59e0b' } }], barWidth: '40%', label: { show: true, position: 'top', fontSize: 10, formatter: '¥{c}M' } }]
+  },
+  regionChart: {
+    tooltip: { trigger: 'item' },
+    series: [{ type: 'pie', radius: ['35%', '65%'], center: ['50%', '50%'], data: [{ value: 180, name: 'North', itemStyle: { color: '#4f6ef7' } }, { value: 90, name: 'East', itemStyle: { color: '#10b981' } }, { value: 75, name: 'South', itemStyle: { color: '#f59e0b' } }, { value: 35, name: 'West', itemStyle: { color: '#ef4444' } }], label: { fontSize: 11, formatter: '{b}\n¥{c}M ({d}%)' }, emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0,0,0,0.2)' } } }]
+  },
+  trendChart: {
+    tooltip: { trigger: 'axis' },
+    legend: { data: ['Revenue', 'Cost'], top: 0, right: 0, textStyle: { fontSize: 11 } },
+    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    xAxis: { type: 'category', data: months, axisLabel: { fontSize: 10 } },
+    yAxis: { type: 'value', axisLabel: { fontSize: 10, formatter: '¥{value}M' } },
+    series: [
+      { name: 'Revenue', type: 'line', data: [1200, 1350, 1100, 1400, 1500, 1600, 1800, 2000, 1900, 2100, 2300, 2200], smooth: true, symbol: 'circle', symbolSize: 4, lineStyle: { width: 2.5, color: '#4f6ef7' }, areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(79,110,247,0.15)' }, { offset: 1, color: 'rgba(79,110,247,0)' }] } }, itemStyle: { color: '#4f6ef7' } },
+      { name: 'Cost', type: 'line', data: [700, 780, 650, 800, 850, 900, 1000, 1100, 1050, 1150, 1250, 1200], smooth: true, symbol: 'circle', symbolSize: 4, lineStyle: { width: 2, color: '#f59e0b', type: 'dashed' }, itemStyle: { color: '#f59e0b' } }
+    ]
+  },
+  channelChart: {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    legend: { data: channels, top: 0, right: 0, textStyle: { fontSize: 11 } },
+    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    xAxis: { type: 'category', data: months, axisLabel: { fontSize: 10 } },
+    yAxis: { type: 'value', axisLabel: { fontSize: 10, formatter: '¥{value}M' } },
+    series: channels.map((c, i) => ({ name: c, type: 'bar', stack: 'total', data: chnR[c], itemStyle: { color: ['#4f6ef7', '#10b981', '#f59e0b'][i] } }))
+  }
+})
 
 const steps = [
   { label: m('step_schema'), status: 'done', detail: 'Table: <b>fact_sales</b> | Columns: 12 | Rows: 2.5M<br>Detected: Date, Region, Brand, Channel, Amount, Cost, Orders' },
@@ -213,80 +240,18 @@ function newAnalysis() {
 }
 
 function genReport() {
-  navStore.setPage('report')
-  router.push({ name: 'report' })
+  navigateTo('report')
 }
 
 function openDrillDown() {
-  drawerStore.openDrawer(m('drill_down_title'), '<div class="dd-ct"><h4>North Region Breakdown</h4><p>Revenue: ¥180M (Target: ¥120M)</p><p>Growth: +15% YoY</p><p>Main Driver: Series X product line</p></div>')
+  drawerStore.openDrawer(m('drill_down_title'), DetailView, {
+    title: m('drill_down_title'),
+    fields: [
+      { label: 'Region', value: 'North Region Breakdown' },
+      { label: 'Revenue', value: '¥180M (Target: ¥120M)' },
+      { label: 'Growth', value: '+15% YoY' },
+      { label: 'Main Driver', value: 'Series X product line' }
+    ]
+  })
 }
-
-function initCharts() {
-  if (brandChart.value) {
-    brandChartInstance = echarts.init(brandChart.value)
-    brandChartInstance.setOption({
-      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-      grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-      xAxis: { type: 'category', data: brands, axisLabel: { fontSize: 11 } },
-      yAxis: { type: 'value', axisLabel: { fontSize: 10, formatter: '¥{value}M' } },
-      series: [{ type: 'bar', data: [{ value: 950, itemStyle: { color: '#4f6ef7' } }, { value: 850, itemStyle: { color: '#10b981' } }, { value: 600, itemStyle: { color: '#f59e0b' } }], barWidth: '40%', label: { show: true, position: 'top', fontSize: 10, formatter: '¥{c}M' } }]
-    })
-  }
-
-  if (regionChart.value) {
-    regionChartInstance = echarts.init(regionChart.value)
-    regionChartInstance.setOption({
-      tooltip: { trigger: 'item' },
-      series: [{ type: 'pie', radius: ['35%', '65%'], center: ['50%', '50%'], data: [{ value: 180, name: 'North', itemStyle: { color: '#4f6ef7' } }, { value: 90, name: 'East', itemStyle: { color: '#10b981' } }, { value: 75, name: 'South', itemStyle: { color: '#f59e0b' } }, { value: 35, name: 'West', itemStyle: { color: '#ef4444' } }], label: { fontSize: 11, formatter: '{b}\n¥{c}M ({d}%)' }, emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0,0,0,0.2)' } } }]
-    })
-  }
-
-  if (trendChart.value) {
-    trendChartInstance = echarts.init(trendChart.value)
-    trendChartInstance.setOption({
-      tooltip: { trigger: 'axis' },
-      legend: { data: ['Revenue', 'Cost'], top: 0, right: 0, textStyle: { fontSize: 11 } },
-      grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-      xAxis: { type: 'category', data: months, axisLabel: { fontSize: 10 } },
-      yAxis: { type: 'value', axisLabel: { fontSize: 10, formatter: '¥{value}M' } },
-      series: [
-        { name: 'Revenue', type: 'line', data: [1200, 1350, 1100, 1400, 1500, 1600, 1800, 2000, 1900, 2100, 2300, 2200], smooth: true, symbol: 'circle', symbolSize: 4, lineStyle: { width: 2.5, color: '#4f6ef7' }, areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(79,110,247,0.15)' }, { offset: 1, color: 'rgba(79,110,247,0)' }] } }, itemStyle: { color: '#4f6ef7' } },
-        { name: 'Cost', type: 'line', data: [700, 780, 650, 800, 850, 900, 1000, 1100, 1050, 1150, 1250, 1200], smooth: true, symbol: 'circle', symbolSize: 4, lineStyle: { width: 2, color: '#f59e0b', type: 'dashed' }, itemStyle: { color: '#f59e0b' } }
-      ]
-    })
-  }
-
-  if (channelChart.value) {
-    channelChartInstance = echarts.init(channelChart.value)
-    channelChartInstance.setOption({
-      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-      legend: { data: channels, top: 0, right: 0, textStyle: { fontSize: 11 } },
-      grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-      xAxis: { type: 'category', data: months, axisLabel: { fontSize: 10 } },
-      yAxis: { type: 'value', axisLabel: { fontSize: 10, formatter: '¥{value}M' } },
-      series: channels.map((c, i) => ({ name: c, type: 'bar', stack: 'total', data: chnR[c], itemStyle: { color: ['#4f6ef7', '#10b981', '#f59e0b'][i] } }))
-    })
-  }
-
-  window.addEventListener('resize', handleResize)
-}
-
-function handleResize() {
-  brandChartInstance?.resize()
-  regionChartInstance?.resize()
-  trendChartInstance?.resize()
-  channelChartInstance?.resize()
-}
-
-onMounted(() => {
-  setTimeout(initCharts, 100)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
-  brandChartInstance?.dispose()
-  regionChartInstance?.dispose()
-  trendChartInstance?.dispose()
-  channelChartInstance?.dispose()
-})
 </script>

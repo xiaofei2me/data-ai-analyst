@@ -3,18 +3,22 @@ import { ref } from 'vue'
 
 export const useDrawerStore = defineStore('drawer', () => {
   const title = ref('')
-  const content = ref('')
+  const component = ref(null)
+  const props = ref({})
   const isOpen = ref(false)
 
-  function openDrawer(titleText, contentHtml) {
+  function openDrawer(titleText, componentRef, propsData = {}) {
     title.value = titleText
-    content.value = contentHtml
+    component.value = componentRef
+    props.value = propsData
     isOpen.value = true
   }
 
   function closeDrawer() {
     isOpen.value = false
+    component.value = null
+    props.value = {}
   }
 
-  return { title, content, isOpen, openDrawer, closeDrawer }
+  return { title, component, props, isOpen, openDrawer, closeDrawer }
 })

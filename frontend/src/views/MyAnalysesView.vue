@@ -39,14 +39,12 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useNavStore } from '../stores/nav'
+import { useNavigation } from '../composables/useNavigation'
 import { useToastStore } from '../stores/toast'
 import { useI18n } from '../composables/useI18n'
 import { analyzes } from '../data'
 
-const router = useRouter()
-const navStore = useNavStore()
+const { navigateTo } = useNavigation()
 const toastStore = useToastStore()
 const { m } = useI18n()
 
@@ -55,8 +53,7 @@ function toast(msg) {
 }
 
 function navTo(page) {
-  navStore.setPage(page)
-  router.push({ name: page })
+  navigateTo(page)
 }
 
 function filterTable(q) {

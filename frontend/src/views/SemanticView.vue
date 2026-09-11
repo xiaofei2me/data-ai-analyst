@@ -48,6 +48,7 @@ import { useToastStore } from '../stores/toast'
 import { useDrawerStore } from '../stores/drawer'
 import { useI18n } from '../composables/useI18n'
 import { metrics, dimensions, entities } from '../data'
+import DetailView from '../components/DetailView.vue'
 
 const toastStore = useToastStore()
 const drawerStore = useDrawerStore()
@@ -64,7 +65,14 @@ function showTab(tab) {
 function openDetail(name) {
   const item = metrics.find(r => r.name === name)
   if (item) {
-    drawerStore.openDrawer(item.name, `<div class="det-card"><h4>${item.name}</h4><div class="det-row"><span class="det-lbl">Type</span><span class="det-val">${item.type}</span></div><div class="det-row"><span class="det-lbl">Expression</span><span class="det-val">${item.expr}</span></div><div class="det-row"><span class="det-lbl">Owner</span><span class="det-val">${item.owner}</span></div></div>`)
+    drawerStore.openDrawer(item.name, DetailView, {
+      title: item.name,
+      fields: [
+        { label: 'Type', value: item.type },
+        { label: 'Expression', value: item.expr },
+        { label: 'Owner', value: item.owner }
+      ]
+    })
   }
 }
 </script>

@@ -24,18 +24,15 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useNavStore } from '../stores/nav'
+import { useNavigation } from '../composables/useNavigation'
 import { useThemeStore } from '../stores/theme'
 import { useSearchStore } from '../stores/search'
 import { useI18n } from '../composables/useI18n'
 
-const navStore = useNavStore()
+const { breadcrumb } = useNavigation()
 const themeStore = useThemeStore()
 const searchStore = useSearchStore()
 const { m, currentLang, setLang } = useI18n()
-
-const breadcrumb = computed(() => navStore.breadcrumb)
 
 function toggleLang() {
   const newLang = currentLang.value === 'en' ? 'zh' : 'en'
