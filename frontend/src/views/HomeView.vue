@@ -95,13 +95,13 @@ function toast(msg) {
 
 function startAnalysis() {
   if (inputText.value.trim()) {
-    navigateTo('analysis')
+    navigateTo('analysis', { q: inputText.value.trim() })
   } else {
     toast(m('placeholder_input'))
   }
 }
 
 function startAnalysisWith(q) {
-  navigateTo('analysis')
+  navigateTo('analysis', { q })
 }
 </script>

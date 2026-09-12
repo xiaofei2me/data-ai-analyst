@@ -13,9 +13,9 @@ export function useNavigation() {
   const workspace = computed(() => navStore.workspace)
   const breadcrumb = computed(() => navStore.breadcrumb)
 
-  function navigateTo(pageId) {
+  function navigateTo(pageId, params) {
     navStore.setPage(pageId)
-    router.push({ name: pageId })
+    router.push({ name: pageId, query: params })
   }
 
   function switchWorkspace(ws) {

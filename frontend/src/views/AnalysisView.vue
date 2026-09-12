@@ -9,18 +9,24 @@
       </div>
       <div class="ana-conv">
         <div class="usr-msg">
-          <div class="usr-msg-b">Analyze Q3 2024 sales data</div>
+          <div class="usr-msg-b">{{ analysisStore.question || 'Analyze Q3 2024 sales data' }}</div>
         </div>
         <div class="ana-steps">
-          <div class="ana-step exp" v-for="(step, index) in steps" :key="index">
+          <div class="ana-step exp" v-for="(step, index) in analysisStore.steps" :key="index">
             <div class="ana-step-hdr">
               <div class="ana-step-ico" :class="step.status">
-                <i :class="step.status === 'done' ? 'fas fa-check' : step.status === 'run' ? 'fas fa-spinner' : 'fas fa-clock'"></i>
+                <i :class="{
+                  'fas fa-check': step.status === 'completed',
+                  'fas fa-spinner fa-spin': step.status === 'running',
+                  'fas fa-clock': step.status === 'pending',
+                  'fas fa-times': step.status === 'failed',
+                  'fas fa-ban': step.status === 'cancelled'
+                }"></i>
               </div>
-              <div class="ana-step-lbl" :class="{ wait: step.status === 'wait' }">{{ step.label }}</div>
+              <div class="ana-step-lbl" :class="{ wait: step.status === 'pending' || step.status === 'cancelled' }">{{ m(step.key) }}</div>
               <span class="ana-step-exp"><i class="fas fa-chevron-down"></i></span>
             </div>
-            <div class="ana-step-det" v-html="step.detail"></div>
+            <div class="ana-step-det" v-if="step.detail" v-html="step.detail"></div>
           </div>
         </div>
       </div>
@@ -168,18 +174,22 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useNavigation } from '../composables/useNavigation'
 import { useToastStore } from '../stores/toast'
 import { useDrawerStore } from '../stores/drawer'
+import { useAnalysisStore } from '../stores/analysis'
 import { useI18n } from '../composables/useI18n'
 import { brands, brandR, regions, regR, channels, chnR, months } from '../data'
 import DetailView from '../components/DetailView.vue'
 import { useCharts } from '../composables/useCharts'
 
+const route = useRoute()
 const { navigateTo } = useNavigation()
 const toastStore = useToastStore()
 const drawerStore = useDrawerStore()
+const analysisStore = useAnalysisStore()
 const { m } = useI18n()
 
 const brandChart = ref(null)
@@ -220,16 +230,17 @@ useCharts({ brandChart, regionChart, trendChart, channelChart }, {
   }
 })
 
-const steps = [
-  { label: m('step_schema'), status: 'done', detail: 'Table: <b>fact_sales</b> | Columns: 12 | Rows: 2.5M<br>Detected: Date, Region, Brand, Channel, Amount, Cost, Orders' },
-  { label: m('step_generate'), status: 'done', detail: '<div class="sql-blk">SELECT month, SUM(revenue) as revenue, SUM(cost) as cost, (SUM(revenue)-SUM(cost))/SUM(revenue)*100 as profit_rate FROM fact_sales WHERE quarter=\'Q3\' GROUP BY month ORDER BY month</div>' },
-  { label: m('step_execute'), status: 'done', detail: 'Executed in 1.2s | 3 rows returned | 100% match' },
-  { label: m('step_insight'), status: 'done', detail: 'Generated 3 key insights with 95% confidence' },
-  { label: m('step_visualization'), status: 'done', detail: 'Created 4 interactive charts' },
-  { label: m('step_drill'), status: 'done', detail: 'Drill-down available for: Brand, Region, Channel' },
-  { label: m('step_recommendations'), status: 'done', detail: '5 actionable recommendations generated' },
-  { label: m('step_summary'), status: 'done', detail: 'Report summary ready for review' }
-]
+onMounted(() => {
+  const q = route.query.q || ''
+  if (q) {
+    analysisStore.startAnalysis(q)
+    analysisStore.runNext()
+  }
+})
+
+onUnmounted(() => {
+  analysisStore.reset()
+})
 
 function toast(msg) {
   toastStore.showToast(msg)
