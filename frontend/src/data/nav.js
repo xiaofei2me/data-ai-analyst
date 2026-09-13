@@ -28,18 +28,18 @@ export const navTech = [
     i: 'fas fa-robot',
     items: [
       { id: 'agents', i: 'fas fa-robot', t: 'nav_agents' },
-      { id: 'capabilities', i: 'fas fa-cogs', t: 'nav_capabilities' },
-      { id: 'data-tools', i: 'fas fa-tools', t: 'nav_data_tools' },
-      { id: 'ai-models', i: 'fas fa-brain', t: 'nav_ai_models' },
+      { id: 'skills', i: 'fas fa-cogs', t: 'nav_skills' },
+      { id: 'tools', i: 'fas fa-tools', t: 'nav_tools' },
+      { id: 'models', i: 'fas fa-brain', t: 'nav_models' },
       { id: 'evaluation', i: 'fas fa-chart-line', t: 'nav_evaluation' },
-      { id: 'monitoring', i: 'fas fa-heartbeat', t: 'nav_monitoring' }
+      { id: 'operations', i: 'fas fa-heartbeat', t: 'nav_operations' }
     ]
   },
   {
     l: 'System',
     i: 'fas fa-cog',
     items: [
-      { id: 'permissions', i: 'fas fa-shield-alt', t: 'nav_permissions' }
+      { id: 'governance', i: 'fas fa-shield-alt', t: 'nav_governance' }
     ]
   }
 ]
@@ -55,12 +55,12 @@ export const pageNames = {
   catalog: 'Data Catalog',
   knowledge: 'Knowledge Base',
   agents: 'AI Agents',
-  capabilities: 'Capabilities',
-  'data-tools': 'Data Tools',
-  'ai-models': 'AI Models',
+  skills: 'Skills',
+  tools: 'Tools',
+  models: 'Models',
   evaluation: 'Evaluation',
-  monitoring: 'Monitoring',
-  permissions: 'Permissions',
-  overview: 'Architecture',
+  operations: 'Operations',
+  governance: 'Governance',
+  platform: 'Platform',
   settings: 'Settings'
 }

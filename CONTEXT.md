@@ -60,21 +60,24 @@ _Avoid_: docs, wiki, articles
 具有特定能力的 AI 助手，如 Data Analyst、Report Generator 等。
 _Avoid_: bot, assistant, model
 
-**Capability（能力）**：
+**Skill（技能）**：
 AI 代理可执行的具体功能，如 Data Query、Chart Generation 等。
-_Avoid_: feature, function, skill
+_Previously_: Capability
+_Avoid_: feature, function, capability
 
 **Evaluation（评估）**：
 模型性能评估指标，包括 Accuracy、Precision、Recall、F1 Score 等。
 _Aavoid_: metrics, assessment, scoring
 
-**Monitoring（监控）**：
+**Operations（运维）**：
 系统健康和性能监控，包括 Uptime、Latency、Error Rate 等。
-_Avoid_: observability, tracking, logging
+_Previously_: Monitoring
+_Avoid_: observability, tracking, logging, monitoring
 
-**Permission（权限）**：
+**Governance（治理）**：
 用户角色和访问控制，包括 Admin、Data Analyst、Viewer 等角色。
-_Avoid_: role, access, auth
+_Previously_: Permission
+_Avoid_: role, access, auth, permission
 
 **Settings（设置）**：
 用户配置面板，包括外观、数据源、AI 模型、通知等设置。

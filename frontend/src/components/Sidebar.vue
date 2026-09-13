@@ -29,9 +29,9 @@
       </div>
     </nav>
     <div class="s-bottom">
-      <div class="s-item" @click="navigateTo('overview')">
+      <div class="s-item" @click="navigateTo('platform')">
         <i class="fas fa-sitemap"></i>
-        <span>{{ m('nav_overview') }}</span>
+        <span>{{ m('nav_platform') }}</span>
       </div>
       <div class="s-item" @click="navigateTo('settings')">
         <i class="fas fa-cog"></i>
