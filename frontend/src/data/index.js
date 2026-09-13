@@ -18,3 +18,13 @@ export { defaultSettings } from './settings'
 
 // Navigation
 export { navBiz, navTech, pageNames } from './nav'
+
+// Domain
+export { ANALYSIS_STEPS, getStepByKey, getStepIndex } from './domain/analysisSteps'
+export {
+  createMockAnalysis,
+  createJapanSalesAnalysis,
+  getMockAnalysis,
+  listMockAnalyses,
+  updateMockAnalysis
+} from './domain/analysis'
