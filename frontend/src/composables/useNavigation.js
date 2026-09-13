@@ -15,7 +15,11 @@ export function useNavigation() {
 
   function navigateTo(pageId, params) {
     navStore.setPage(pageId)
-    router.push({ name: pageId, query: params })
+    if (params?.id) {
+      router.push({ name: pageId, params: { id: params.id } })
+    } else {
+      router.push({ name: pageId, query: params })
+    }
   }
 
   function switchWorkspace(ws) {

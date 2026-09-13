@@ -81,10 +81,12 @@
 import { ref } from 'vue'
 import { useNavigation } from '../composables/useNavigation'
 import { useToastStore } from '../stores/toast'
+import { useAnalysisStore } from '../stores/analysis'
 import { useI18n } from '../composables/useI18n'
 
 const { navigateTo } = useNavigation()
 const toastStore = useToastStore()
+const analysisStore = useAnalysisStore()
 const { m } = useI18n()
 
 const inputText = ref('')
@@ -93,15 +95,35 @@ function toast(msg) {
   toastStore.showToast(msg)
 }
 
-function startAnalysis() {
-  if (inputText.value.trim()) {
-    navigateTo('analysis', { q: inputText.value.trim() })
-  } else {
+async function startAnalysis() {
+  if (!inputText.value.trim()) {
     toast(m('placeholder_input'))
+    return
+  }
+
+  try {
+    const analysis = await analysisStore.createAnalysis({
+      question: inputText.value.trim(),
+      context: {
+        market: { id: 'market_jp', name: 'Japan' },
+        timeRange: { start: '2026-01-01', end: '2026-12-31', granularity: 'month' },
+        currency: 'JPY',
+        comparison: { type: 'yoy', enabled: true },
+        dimensions: ['brand', 'region', 'category']
+      }
+    })
+    navigateTo('analysis-detail', { id: analysis.id })
+  } catch (error) {
+    if (error?.message) {
+      toast(error.message)
+    } else {
+      toast('创建分析失败，请稍后重试')
+    }
   }
 }
 
 function startAnalysisWith(q) {
-  navigateTo('analysis', { q })
+  inputText.value = q
+  startAnalysis()
 }
 </script>

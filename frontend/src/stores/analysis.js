@@ -76,6 +76,8 @@ export const useAnalysisStore = defineStore('analysis', () => {
   const drillDownResult = ref(/** @type {DrillDownResult | null} */ (null))
 
   const currentAnalysis = computed(() => _analysis.value)
+  const question = computed(() => _analysis.value?.question || '')
+  const steps = computed(() => _analysis.value?.steps || [])
 
   const isLoading = computed(() => _loading.value || _isHydrating.value)
 
@@ -364,6 +366,8 @@ export const useAnalysisStore = defineStore('analysis', () => {
 
   return {
     currentAnalysis,
+    question,
+    steps,
     drillDownPath,
     drillDownResult,
     error,

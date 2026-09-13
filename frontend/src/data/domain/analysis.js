@@ -111,32 +111,6 @@ const JAPAN_SALES_EVIDENCE = {
   executionSnapshot: { agentId: 'agent_data_analyst', agentVersion: '1.2.0', skillIds: ['skill_trend_analysis', 'skill_root_cause'], toolIds: ['tool_execute_sql', 'tool_validate_sql'], executedAt: '2026-03-15T09:00:00Z' }
 }
 
-export function createMockAnalysis(data = {}) {
-  const now = new Date().toISOString()
-
-  return {
-    id: data.id || 'analysis_new',
-    question: data.question || '',
-
-    status: data.status || 'draft',
-    currentStep: data.currentStep || null,
-    steps: data.steps || createStepsFromDefinitions('pending'),
-
-    context: data.context || { ...DEFAULT_CONTEXT },
-    references: data.references || { ...DEFAULT_REFERENCES },
-
-    result: data.result || null,
-    evidence: data.evidence || null,
-
-    reportId: data.reportId || null,
-
-    createdAt: data.createdAt || now,
-    updatedAt: data.updatedAt || now,
-
-    error: data.error || null
-  }
-}
-
 export function createJapanSalesAnalysis(overrides = {}) {
   const base = {
     id: 'analysis_japan_sales_2026',
@@ -156,6 +130,8 @@ export function createJapanSalesAnalysis(overrides = {}) {
 
   return { ...base, ...overrides }
 }
+
+let analysisCounter = 0
 
 const mockAnalyses = [
   createJapanSalesAnalysis({
@@ -234,6 +210,38 @@ const mockAnalyses = [
     error: { code: 'SEMANTIC_RESOLUTION_FAILED', message: 'Failed to resolve sales metric business definition', step: 'semantic_resolution', occurredAt: '2026-03-15T11:30:00Z' }
   })
 ]
+
+export function createMockAnalysis(data = {}) {
+  const now = new Date().toISOString()
+  
+  const id = data.id || `analysis_${Date.now()}_${++analysisCounter}`
+  
+  const analysis = {
+    id,
+    question: data.question || '',
+
+    status: data.status || 'draft',
+    currentStep: data.currentStep || null,
+    steps: data.steps || createStepsFromDefinitions('pending'),
+
+    context: data.context || { ...DEFAULT_CONTEXT },
+    references: data.references || { ...DEFAULT_REFERENCES },
+
+    result: data.result || null,
+    evidence: data.evidence || null,
+
+    reportId: data.reportId || null,
+
+    createdAt: data.createdAt || now,
+    updatedAt: data.updatedAt || now,
+
+    error: data.error || null
+  }
+  
+  mockAnalyses.push(analysis)
+  
+  return analysis
+}
 
 export function getMockAnalysis(id) {
   return mockAnalyses.find(a => a.id === id) || null

@@ -174,7 +174,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useNavigation } from '../composables/useNavigation'
 import { useToastStore } from '../stores/toast'
@@ -230,16 +230,48 @@ useCharts({ brandChart, regionChart, trendChart, channelChart }, {
   }
 })
 
-onMounted(() => {
-  const q = route.query.q || ''
-  if (q) {
-    analysisStore.startAnalysis(q)
-    analysisStore.runNext()
+onMounted(async () => {
+  const id = route.params.id
+  if (id) {
+    try {
+      await analysisStore.loadAnalysis(id)
+    } catch (error) {
+      toast('Failed to load analysis')
+    }
+  } else {
+    const q = route.query.q || ''
+    if (q) {
+      try {
+        await analysisStore.createAnalysis({
+          question: q,
+          context: {
+            market: { id: 'market_jp', name: 'Japan' },
+            timeRange: { start: '2026-01-01', end: '2026-12-31', granularity: 'month' },
+            currency: 'JPY',
+            comparison: { type: 'yoy', enabled: true },
+            dimensions: ['brand', 'region', 'category']
+          }
+        })
+        await analysisStore.runAnalysis()
+      } catch (error) {
+        toast('Failed to create analysis')
+      }
+    }
+  }
+})
+
+watch(() => route.params.id, async (newId, oldId) => {
+  if (newId && newId !== oldId) {
+    try {
+      await analysisStore.loadAnalysis(newId)
+    } catch (error) {
+      toast('Failed to load analysis')
+    }
   }
 })
 
 onUnmounted(() => {
-  analysisStore.reset()
+  analysisStore.clearAnalysis()
 })
 
 function toast(msg) {

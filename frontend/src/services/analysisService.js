@@ -256,9 +256,7 @@ export async function createAnalysis(payload) {
     context
   })
 
-  updateMockAnalysis(analysis.id, analysis)
-
-  return getMockAnalysis(analysis.id)
+  return analysis
 }
 
 export function getAnalysis(id) {
